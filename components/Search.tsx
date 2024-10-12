@@ -5,7 +5,6 @@ import {
   Container,
   Grid,
   TextField,
-  Button,
   MenuItem,
   Box,
   Autocomplete,
@@ -14,7 +13,8 @@ import {
 import { DateRangePicker, LocalizationProvider } from "@mui/x-date-pickers-pro";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
-import { DateRange } from "@mui/x-date-pickers-pro/DateRangePicker";
+import { DateRange } from "@mui/x-date-pickers-pro";
+import { Dayjs } from "dayjs";
 
 interface AirportOption {
   label: string;
@@ -29,13 +29,16 @@ interface Passengers {
 }
 
 type Props = {
-  setSearchResultData: React.Dispatch<React.SetStateAction<SearchResultsData>>;
+  setSearchResultData: React.Dispatch<
+    React.SetStateAction<SearchResultsData | null>
+  >;
+  setSearchLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const Search: React.FC<Props> = ({ setSearchResultData }) => {
+const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
   const [from, setFrom] = useState<string>("");
   const [to, setTo] = useState<string>("");
-  const [dateRange, setDateRange] = useState<DateRange<Date>>([null, null]);
+  const [dateRange, setDateRange] = useState<DateRange<Dayjs>>([null, null]);
   const [passengers, setPassengers] = useState<Passengers>({
     adults: 1,
     children: 0,
@@ -74,7 +77,9 @@ const Search: React.FC<Props> = ({ setSearchResultData }) => {
       const options = response.data.data.map(
         (item: {
           presentation: { suggestionTitle: string };
-          navigation: { relevantFlightParams: { skyId: string; entityId: any } };
+          navigation: {
+            relevantFlightParams: { skyId: string; entityId: string };
+          };
         }) => ({
           label: item.presentation.suggestionTitle,
           value: item.navigation.relevantFlightParams.skyId,
@@ -108,6 +113,7 @@ const Search: React.FC<Props> = ({ setSearchResultData }) => {
   }, [to]);
 
   const handleSearch = async () => {
+    setSearchLoading(true);
     const originSkyId = selectedFrom?.value;
     const destinationSkyId = selectedTo?.value;
     const originEntityId = selectedFrom?.entityId;
@@ -146,12 +152,13 @@ const Search: React.FC<Props> = ({ setSearchResultData }) => {
           },
         }
       );
-      console.log("Flight search results:", response.data);
       const searchData = response.data.data;
       const { itineraries, context } = searchData;
       setSearchResultData({ itineraries, status: context.status });
+      setSearchLoading(false);
     } catch (error) {
       console.error("Error searching flights:", error);
+      setSearchLoading(false);
     }
   };
 
@@ -218,8 +225,7 @@ const Search: React.FC<Props> = ({ setSearchResultData }) => {
             <DateRangePicker
               value={dateRange}
               onChange={(newValue) => setDateRange(newValue)}
-              // one way trip
-              disableFuture={tripType === "one-way"}
+              disablePast
               slotProps={{ textField: { fullWidth: true } }}
             />
           </LocalizationProvider>
