@@ -50,7 +50,7 @@ const SearchResults = ({ searchResultsData }: Props) => {
         >
             <div
                 ref={searchContainerRef}
-                className="grid gap-8 rid-cols-2 w-full mx-auto"
+                className="grid gap-6 rid-cols-2 w-full mx-auto"
             >
                 {displayedItineraries.map((itinerary, index) => (
                     <Itinerary key={index} itinerary={itinerary} />
