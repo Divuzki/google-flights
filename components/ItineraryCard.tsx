@@ -15,6 +15,7 @@ import {
   TimelineDot,
 } from "@mui/lab";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Link from "next/link";
 
 // Helper function to format date strings
 const formatDate = (date: string) => new Date(date).toLocaleString();
@@ -49,20 +50,16 @@ const FlightLeg: FC<{ leg: Leg; sessionId: string }> = ({ leg, sessionId }) => (
     </AccordionSummary>
     <AccordionDetails>
       <FlightTimeline segments={leg.segments} />
-      <div className="mt-4 flex justify-end">
-        <Button
-          variant="contained"
-          onClick={() => {
-            // add sessionid and legs to the query string
-            window.location.href = `/flight/${leg.id}?sessionid=${sessionId}&legs=${JSON.stringify(
-              leg.segments
-            )}`;
-          }}
-          color="primary"
-        >
+      <Link
+        href={`/?flightId=${
+          leg.id
+        }&sessionid=${sessionId}&legs=${JSON.stringify(leg.segments)}`}
+        className="mt-4 flex justify-end"
+      >
+        <Button variant="contained" color="primary">
           Select Flight
         </Button>
-      </div>
+      </Link>
     </AccordionDetails>
   </Accordion>
 );

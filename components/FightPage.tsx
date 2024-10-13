@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useRouter } from "next/router";
 import { RAPIDAPI_HEADERS } from "@/utils/config";
 
-const FlightDetails: React.FC = () => {
-  const router = useRouter();
-  const { flightId } = router.query; // e.g. /flight/12345
-  // get ?sessionId=12345 from the URL query parameters
-  const { sessionId, legs } = router.query;
+type Props = {
+  flightId: string;
+  sessionId: string;
+  legs: string;
+};
+
+const FlightPage: React.FC<Props> = (props) => {
+  const { flightId, sessionId, legs } = props;
   const [flightData, setFlightData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,4 +48,4 @@ const FlightDetails: React.FC = () => {
   );
 };
 
-export default FlightDetails;
+export default FlightPage;
