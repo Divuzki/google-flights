@@ -119,7 +119,7 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
     const destinationEntityId = selectedTo?.entityId;
     const departureDate = dateRange[0]?.toISOString().split("T")[0];
     const returnDate = dateRange[1]?.toISOString().split("T")[0];
-    
+
     if (!originSkyId || !destinationSkyId || !departureDate) {
       console.error("Missing required search parameters");
       return;
@@ -169,7 +169,7 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
       dateRange[0] &&
       (tripType === "one-way" || dateRange[1])
     );
-  }
+  };
 
   return (
     <Container>

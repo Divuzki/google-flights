@@ -18,14 +18,15 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const Itinerary = ({ itinerary }: { itinerary: ItineraryProps }) => {
   return (
-    <div className="m-5 p-5 bg-white rounded-lg border shadow-lg max-w-4xl mx-auto">
+    <div className="m-5 sm:p-5 py-5 bg-white rounded-lg border shadow-lg max-w-4xl mx-auto">
       <div className="mb-5 text-center">
         <h2 className="text-2xl font-bold">
-          Price <span className="text-emerald-600">{itinerary.price.formatted}</span>
+          Price{" "}
+          <span className="text-emerald-600">{itinerary.price.formatted}</span>
         </h2>
       </div>
       {itinerary.legs.map((leg, index) => (
-        <Accordion key={index} className="mb-3 rounded-lg">
+        <Accordion key={index} className="mb-3 rounded-lg !shadow-none">
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls={`panel${index}-content`}
@@ -57,7 +58,7 @@ const Itinerary = ({ itinerary }: { itinerary: ItineraryProps }) => {
           <AccordionDetails>
             <Timeline>
               {leg.segments.map((segment, segIndex) => (
-                <TimelineItem key={segIndex}>
+                <TimelineItem key={segIndex} className="MuiTimelineItem-root">
                   <TimelineSeparator>
                     <TimelineDot />
                     {segIndex < leg.segments.length - 1 && (
