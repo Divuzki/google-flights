@@ -21,6 +21,9 @@ export default function Home() {
           height={272}
           priority
         />
+        <h1 className="text-4xl font-semibold text-center">
+          Flights
+        </h1>
         <Search
           setSearchResultData={setSearchResultsData}
           setSearchLoading={setLoading}
@@ -28,7 +31,7 @@ export default function Home() {
 
         {loading && (
           <Box display="flex" justifyContent="center">
-            <CircularProgress color="inherit" size={50} />
+            <CircularProgress size={50} className="mx-auto" />
           </Box>
         )}
         <SearchResults searchResultsData={searchResultsData} />
