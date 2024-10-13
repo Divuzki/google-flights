@@ -5,7 +5,7 @@ import { RAPIDAPI_HEADERS } from "@/utils/config";
 
 const FlightDetails: React.FC = () => {
   const router = useRouter();
-  const { itineraryId } = router.query; // e.g. /flight/12345
+  const { flightId } = router.query; // e.g. /flight/12345
   // get ?sessionId=12345 from the URL query parameters
   const { sessionId, legs } = router.query;
   const [flightData, setFlightData] = useState(null);
@@ -13,14 +13,14 @@ const FlightDetails: React.FC = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!itineraryId) return;
+    if (!flightId) return;
 
     const fetchFlightData = async () => {
       try {
         const response = await axios.get(
           `https://sky-scrapper.p.rapidapi.com/api/v1/flights/getFlightDetails`,
           {
-            params: { itineraryId, sessionId, legs },
+            params: { flightId, sessionId, legs },
             headers: RAPIDAPI_HEADERS,
           }
         );
@@ -33,7 +33,7 @@ const FlightDetails: React.FC = () => {
     };
 
     fetchFlightData();
-  }, [itineraryId, legs, sessionId]);
+  }, [flightId, legs, sessionId]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;

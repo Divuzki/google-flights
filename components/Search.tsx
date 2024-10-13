@@ -139,7 +139,7 @@ const Search: React.FC<Props> = ({ setSearchResultData }) => {
       setSearchResultData({
         itineraries: data.data.itineraries,
         status: data.data.context.status,
-        sessionId: data.data.sessionId,
+        sessionId: data.sessionId,
       });
     } catch (error) {
       console.error("Error searching flights:", error); // Handle API errors.
