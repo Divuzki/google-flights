@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { RAPIDAPI_HEADERS } from "./config";
 
 /**
  * Custom hook to handle airport search functionality.
@@ -23,10 +24,7 @@ export const useAirportSearch = (query: string) => {
           `https://sky-scrapper.p.rapidapi.com/api/v1/flights/searchAirport`,
           {
             params: { query, locale: "en-US" },
-            headers: {
-              "X-RapidAPI-Key": process.env.NEXT_PUBLIC_RAPID_API_KEY,
-              "X-RapidAPI-Host": "sky-scrapper.p.rapidapi.com",
-            },
+            headers: RAPIDAPI_HEADERS,
           }
         );
 

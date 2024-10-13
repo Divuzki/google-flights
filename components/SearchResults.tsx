@@ -55,7 +55,7 @@ const SearchResults = ({ searchResultsData }: Props) => {
             className="grid gap-6 rid-cols-2 w-full mx-auto"
           >
             {displayedItineraries.map((itinerary, index) => (
-              <Itinerary key={index} itinerary={itinerary} />
+              <Itinerary key={index} itinerary={itinerary} sessionId={searchResultsData.sessionId} />
             ))}
           </div>
         </InfiniteScroll>

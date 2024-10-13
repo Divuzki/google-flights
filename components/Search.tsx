@@ -14,7 +14,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateRange } from "@mui/x-date-pickers-pro";
 import { Dayjs } from "dayjs";
 import axios from "axios";
-import { useAirportSearch } from "@/utils/lookups";
+import { useAirportSearch } from "@/utils/hooks";
+import { RAPIDAPI_HEADERS } from "@/utils/config";
 
 // Define the structure of airport data returned from the API.
 interface AirportOption {
@@ -131,16 +132,14 @@ const Search: React.FC<Props> = ({ setSearchResultData }) => {
         `https://sky-scrapper.p.rapidapi.com/api/v2/flights/searchFlightsComplete`,
         {
           params,
-          headers: {
-            "X-RapidAPI-Key": process.env.NEXT_PUBLIC_RAPID_API_KEY,
-            "X-RapidAPI-Host": "sky-scrapper.p.rapidapi.com",
-          },
+          headers: RAPIDAPI_HEADERS,
         }
       );
       // Update search results data state with the response.
       setSearchResultData({
         itineraries: data.data.itineraries,
         status: data.data.context.status,
+        sessionId: data.data.sessionId,
       });
     } catch (error) {
       console.error("Error searching flights:", error); // Handle API errors.

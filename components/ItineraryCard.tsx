@@ -4,7 +4,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Avatar,
-  // Button,
+  Button,
 } from "@mui/material";
 import {
   Timeline,
@@ -19,47 +19,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // Helper function to format date strings
 const formatDate = (date: string) => new Date(date).toLocaleString();
 
-// types
-type Segment = {
-  origin: {
-    name: string;
-    displayCode: string;
-  };
-  destination: {
-    name: string;
-    displayCode: string;
-  };
-  departure: string;
-  arrival: string;
-  flightNumber: string;
-  marketingCarrier: {
-    name: string;
-  };
-};
-type Leg = {
-  origin: {
-    city: string;
-    displayCode: string;
-  };
-  destination: {
-    city: string;
-    displayCode: string;
-  };
-  departure: string;
-  arrival: string;
-  durationInMinutes: number;
-  stopCount: number;
-  carriers: {
-    marketing: {
-      logoUrl: string;
-      name: string;
-    }[];
-  };
-  segments: Segment[];
-};
-
-// FlightLeg component
-const FlightLeg: FC<{ leg: Leg }> = ({ leg }) => (
+const FlightLeg: FC<{ leg: Leg; sessionId: string }> = ({ leg, sessionId }) => (
   <Accordion className="mb-3 rounded-lg !shadow-none">
     <AccordionSummary
       expandIcon={<ExpandMoreIcon />}
@@ -89,11 +49,20 @@ const FlightLeg: FC<{ leg: Leg }> = ({ leg }) => (
     </AccordionSummary>
     <AccordionDetails>
       <FlightTimeline segments={leg.segments} />
-      {/* <div className="mt-4 flex justify-end">
-        <Button variant="contained" color="primary">
+      <div className="mt-4 flex justify-end">
+        <Button
+          variant="contained"
+          onClick={() => {
+            // add sessionid and legs to the query string
+            window.location.href = `/flight/${leg.id}?sessionid=${sessionId}&legs=${JSON.stringify(
+              leg.segments
+            )}`;
+          }}
+          color="primary"
+        >
           Select Flight
         </Button>
-      </div> */}
+      </div>
     </AccordionDetails>
   </Accordion>
 );
@@ -128,7 +97,10 @@ const FlightTimeline: FC<{ segments: Segment[] }> = ({ segments }) => (
 );
 
 // Main Itinerary component
-const Itinerary: FC<{ itinerary: ItineraryProps }> = ({ itinerary }) => (
+const Itinerary: FC<{ itinerary: ItineraryProps; sessionId: string }> = ({
+  itinerary,
+  sessionId,
+}) => (
   <div className="m-5 sm:p-5 py-5 bg-white rounded-lg border shadow-lg max-w-4xl mx-auto">
     <div className="mb-5 text-center">
       <h2 className="text-2xl font-bold">
@@ -137,7 +109,7 @@ const Itinerary: FC<{ itinerary: ItineraryProps }> = ({ itinerary }) => (
       </h2>
     </div>
     {itinerary.legs.map((leg, index) => (
-      <FlightLeg key={index} leg={leg} />
+      <FlightLeg key={index} leg={leg} sessionId={sessionId} />
     ))}
   </div>
 );
