@@ -1,4 +1,5 @@
 "use client";
+import FlightPage from "@/components/FightPage";
 import Search from "@/components/Search";
 import SearchResults from "@/components/SearchResults";
 import Image from "next/image";
@@ -25,10 +26,19 @@ export default function Home() {
           height={272}
           priority
         />
-        <h1 className="text-4xl font-semibold mx-auto">Flights</h1>
-        <Search setSearchResultData={setSearchResultsData} />
+        {flightId && sessionId && legs ? (
+          <>
+            <h1 className="text-4xl font-semibold mx-auto">About Flight</h1>
+            <FlightPage flightId={flightId} sessionId={sessionId} legs={legs} />
+          </>
+        ) : (
+          <>
+            <h1 className="text-4xl font-semibold mx-auto">Flights</h1>
+            <Search setSearchResultData={setSearchResultsData} />
 
-        <SearchResults searchResultsData={searchResultsData} />
+            <SearchResults searchResultsData={searchResultsData} />
+          </>
+        )}
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center"></footer>
     </div>

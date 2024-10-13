@@ -155,7 +155,7 @@ const Search: React.FC<Props> = ({ setSearchResultData }) => {
         <Grid item xs={12} sm={6}>
           <Autocomplete
             options={fromOptions}
-            getOptionLabel={(option) => option.label}
+            getOptionLabel={(option) => option?.label}
             onInputChange={(_, value) => setFrom(value)}
             onChange={(_, value) => setSelectedFrom(value)}
             loading={fromLoading}

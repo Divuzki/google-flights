@@ -31,12 +31,16 @@ export const useAirportSearch = (query: string) => {
         // Map API response to the AirportOption structure.
         const options = data.data.map((item: any) => {
           const { presentation, navigation } = item;
+          console.log(item);
           if (navigation.entityType !== "AIRPORT") return null;
-          return {
+          let data = {
             label: presentation.suggestionTitle,
             value: navigation.relevantFlightParams.skyId,
             entityId: navigation.relevantFlightParams.entityId,
           };
+          // check if any of the values are null
+          if (Object.values(data).some((v) => v === null)) return null;
+          return data;
         });
         setOptions(options); // Update options state with the fetched data.
       } catch (error) {

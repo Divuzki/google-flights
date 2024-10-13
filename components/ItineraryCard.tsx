@@ -20,7 +20,7 @@ import Link from "next/link";
 // Helper function to format date strings
 const formatDate = (date: string) => new Date(date).toLocaleString();
 
-const FlightLeg: FC<{ leg: Leg;}> = ({ leg }) => (
+const FlightLeg: FC<{ leg: Leg }> = ({ leg }) => (
   <Accordion className="mb-3 rounded-lg !shadow-none">
     <AccordionSummary
       expandIcon={<ExpandMoreIcon />}
@@ -99,16 +99,16 @@ const Itinerary: FC<{ itinerary: ItineraryProps; sessionId: string }> = ({
       <FlightLeg key={index} leg={leg} />
     ))}
     <Link
-      href={`/?flightId=${itinerary.id}&sessionid=${sessionId}&legs=${JSON.stringify(
-        // The legs must contain the origin, destination and date in object format and must be passed in an array. EXAMPLE: [ { 'origin': 'LHR', 'destination': 'JFK', 'date': '2024-01-07' }, ... ] Note: If there are multiple stops, there should be more leg objects in the array. And the legs have to be the same as the Search Flights API in Flights collection.
-
+      href={`/?flightId=${
+        itinerary.id
+      }&sessionId=${sessionId}&legs=${JSON.stringify(
         itinerary.legs.map((leg) => ({
           origin: leg.origin.displayCode,
           destination: leg.destination.displayCode,
           date: leg.departure,
         }))
       )}`}
-      className="mt-4 flex justify-end"
+      className="mt-4 flex justify-center"
     >
       <Button variant="contained" color="primary">
         Select Flight
