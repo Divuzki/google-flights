@@ -1,6 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-"use client";
-import React, { useState, useEffect } from "react";
+"use client"; // Enables client-side rendering for this component.
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Container,
   Grid,
@@ -12,22 +11,25 @@ import {
 } from "@mui/material";
 import { DateRangePicker, LocalizationProvider } from "@mui/x-date-pickers-pro";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import axios from "axios";
 import { DateRange } from "@mui/x-date-pickers-pro";
 import { Dayjs } from "dayjs";
+import axios from "axios";
 
+// Define the structure of airport data returned from the API.
 interface AirportOption {
   label: string;
   value: string;
   entityId: string;
 }
 
+// Type to manage passenger counts.
 interface Passengers {
   adults: number;
   children: number;
   infants: number;
 }
 
+// Props type for the component to receive necessary state handlers from the parent.
 type Props = {
   setSearchResultData: React.Dispatch<
     React.SetStateAction<SearchResultsData | null>
@@ -35,104 +37,137 @@ type Props = {
   setSearchLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+/**
+ * Custom hook to handle airport search functionality.
+ * Fetches airport options based on the user input and manages loading state.
+ *
+ * @param query - The airport search query entered by the user.
+ * @returns { options, loading } - List of airport options and loading state.
+ */
+const useAirportSearch = (query: string) => {
+  const [options, setOptions] = useState<AirportOption[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchAirports = async () => {
+      if (query.length < 3) return; // Fetch only if query length is >= 3.
+      setLoading(true); // Set loading state to true during the API call.
+
+      try {
+        // API call to fetch airport data.
+        const { data } = await axios.get(
+          `https://sky-scrapper.p.rapidapi.com/api/v1/flights/searchAirport`,
+          {
+            params: { query, locale: "en-US" },
+            headers: {
+              "X-RapidAPI-Key": process.env.NEXT_PUBLIC_RAPID_API_KEY,
+              "X-RapidAPI-Host": "sky-scrapper.p.rapidapi.com",
+            },
+          }
+        );
+
+        // Map API response to the AirportOption structure.
+        const options = data.data.map((item: any) => ({
+          label: item.presentation.suggestionTitle,
+          value: item.navigation.relevantFlightParams.skyId,
+          entityId: item.navigation.relevantFlightParams.entityId,
+        }));
+        setOptions(options); // Update options state with the fetched data.
+      } catch (error) {
+        console.error("Error fetching airports:", error); // Handle any errors.
+      } finally {
+        setLoading(false); // Reset loading state after completion.
+      }
+    };
+
+    // Debounce the API call to prevent too many requests.
+    const debounceFetch = setTimeout(fetchAirports, 300);
+    return () => clearTimeout(debounceFetch); // Clean up on unmount or query change.
+  }, [query]);
+
+  return { options, loading }; // Return airport options and loading state.
+};
+
+/**
+ * A reusable component to select passenger count for adults, children, or infants.
+ */
+const PassengerSelect: React.FC<{
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}> = ({ label, value, onChange }) => (
+  <TextField
+    select
+    label={label}
+    value={value}
+    onChange={(e) => onChange(Number(e.target.value))}
+    fullWidth
+  >
+    {/* Render select options dynamically. */}
+    {[0, 1, 2, 3, 4, 5].map((num) => (
+      <MenuItem key={num} value={num}>
+        {num}
+      </MenuItem>
+    ))}
+  </TextField>
+);
+
+/**
+ * Main Search component to allow users to search for flights.
+ * Handles airport selection, date range, passenger details, and triggers the search.
+ */
 const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
-  const [from, setFrom] = useState<string>("");
-  const [to, setTo] = useState<string>("");
-  const [dateRange, setDateRange] = useState<DateRange<Dayjs>>([null, null]);
+  // Component state management.
+  const [from, setFrom] = useState<string>(""); // "From" airport input.
+  const [to, setTo] = useState<string>(""); // "To" airport input.
+  const [dateRange, setDateRange] = useState<DateRange<Dayjs>>([null, null]); // Selected date range.
   const [passengers, setPassengers] = useState<Passengers>({
     adults: 1,
     children: 0,
     infants: 0,
   });
-  const [tripType, setTripType] = useState<string>("round-trip");
-  const [travelClass, setTravelClass] = useState<string>("economy");
-  const [fromOptions, setFromOptions] = useState<AirportOption[]>([]);
-  const [toOptions, setToOptions] = useState<AirportOption[]>([]);
-  const [selectedFrom, setSelectedFrom] = useState<AirportOption | null>(null);
-  const [selectedTo, setSelectedTo] = useState<AirportOption | null>(null);
-  const [loading, setLoading] = useState({
-    from: false,
-    to: false,
-  });
+  const [tripType, setTripType] = useState<string>("round-trip"); // Type of trip.
+  const [travelClass, setTravelClass] = useState<string>("economy"); // Travel class.
+  const [selectedFrom, setSelectedFrom] = useState<AirportOption | null>(null); // Selected "From" airport.
+  const [selectedTo, setSelectedTo] = useState<AirportOption | null>(null); // Selected "To" airport.
 
-  const fetchAirports = async (
-    query: string,
-    setOptions: React.Dispatch<React.SetStateAction<AirportOption[]>>
-  ) => {
-    if (!query || query.length < 3 || query === "") return;
-    setLoading(
-      query === from ? { ...loading, from: true } : { ...loading, to: true }
-    );
-    try {
-      const response = await axios.get(
-        `https://sky-scrapper.p.rapidapi.com/api/v1/flights/searchAirport`,
-        {
-          params: { query, locale: "en-US" },
-          headers: {
-            "X-RapidAPI-Key": process.env.NEXT_PUBLIC_RAPID_API_KEY,
-            "X-RapidAPI-Host": "sky-scrapper.p.rapidapi.com",
-          },
-        }
-      );
-      const options = response.data.data.map(
-        (item: {
-          presentation: { suggestionTitle: string };
-          navigation: {
-            relevantFlightParams: { skyId: string; entityId: string };
-          };
-        }) => ({
-          label: item.presentation.suggestionTitle,
-          value: item.navigation.relevantFlightParams.skyId,
-          entityId: item.navigation.relevantFlightParams.entityId,
-        })
-      );
-      setOptions(options);
-    } catch (error) {
-      console.error("Error fetching airports:", error);
-    } finally {
-      setLoading(
-        query === from ? { ...loading, from: false } : { ...loading, to: false }
-      );
-    }
-  };
+  // Use custom hooks to manage airport search for both "From" and "To" inputs.
+  const { options: fromOptions, loading: fromLoading } = useAirportSearch(from);
+  const { options: toOptions, loading: toLoading } = useAirportSearch(to);
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchAirports(from, setFromOptions);
-    }, 300);
+  /**
+   * Checks if the form is valid for submission.
+   * Ensures that both airports are selected, departure date is provided,
+   * and return date is required for round trips.
+   */
+  const isFormValid = useCallback(
+    () =>
+      selectedFrom &&
+      selectedTo &&
+      dateRange[0] &&
+      (tripType === "one-way" || dateRange[1]),
+    [selectedFrom, selectedTo, dateRange, tripType]
+  );
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [from]);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchAirports(to, setToOptions);
-    }, 300);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [to]);
-
+  /**
+   * Handles the flight search API call based on user input.
+   */
   const handleSearch = async () => {
-    const originSkyId = selectedFrom?.value;
-    const destinationSkyId = selectedTo?.value;
-    const originEntityId = selectedFrom?.entityId;
-    const destinationEntityId = selectedTo?.entityId;
-    const departureDate = dateRange[0]?.toISOString().split("T")[0];
-    const returnDate = dateRange[1]?.toISOString().split("T")[0];
-
-    if (!originSkyId || !destinationSkyId || !departureDate) {
+    if (!isFormValid()) {
       console.error("Missing required search parameters");
       return;
     }
-    setSearchLoading(true);
 
+    setSearchLoading(true); // Set loading state during the search process.
+
+    // Prepare API parameters.
     const params = {
-      originSkyId,
-      destinationSkyId,
-      originEntityId,
-      destinationEntityId,
-      date: departureDate,
-      returnDate,
+      originSkyId: selectedFrom!.value,
+      destinationSkyId: selectedTo!.value,
+      originEntityId: selectedFrom!.entityId,
+      destinationEntityId: selectedTo!.entityId,
+      date: dateRange[0]?.toISOString().split("T")[0],
+      returnDate: dateRange[1]?.toISOString().split("T")[0] || null,
       cabinClass: travelClass,
       adults: passengers.adults,
       childrens: passengers.children,
@@ -142,7 +177,8 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
     };
 
     try {
-      const response = await axios.get(
+      // API call to search for flights.
+      const { data } = await axios.get(
         `https://sky-scrapper.p.rapidapi.com/api/v2/flights/searchFlightsComplete`,
         {
           params,
@@ -152,35 +188,29 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
           },
         }
       );
-      const searchData = response.data.data;
-      const { itineraries, context } = searchData;
-      setSearchResultData({ itineraries, status: context.status });
-      setSearchLoading(false);
+      // Update search results data state with the response.
+      setSearchResultData({
+        itineraries: data.data.itineraries,
+        status: data.data.context.status,
+      });
     } catch (error) {
-      console.error("Error searching flights:", error);
-      setSearchLoading(false);
+      console.error("Error searching flights:", error); // Handle API errors.
+    } finally {
+      setSearchLoading(false); // Reset loading state.
     }
-  };
-
-  const isFormValid = () => {
-    return (
-      selectedFrom &&
-      selectedTo &&
-      dateRange[0] &&
-      (tripType === "one-way" || dateRange[1])
-    );
   };
 
   return (
     <Container>
       <Grid container spacing={2}>
+        {/* "From" Airport Autocomplete */}
         <Grid item xs={12} sm={6}>
           <Autocomplete
             options={fromOptions}
             getOptionLabel={(option) => option.label}
-            onInputChange={(_, newInputValue) => setFrom(newInputValue)}
-            onChange={(_, newValue) => setSelectedFrom(newValue)}
-            loading={loading.from}
+            onInputChange={(_, value) => setFrom(value)}
+            onChange={(_, value) => setSelectedFrom(value)}
+            loading={fromLoading}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -190,9 +220,7 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
                   ...params.InputProps,
                   endAdornment: (
                     <>
-                      {loading.from ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
+                      {fromLoading && <CircularProgress size={20} />}
                       {params.InputProps.endAdornment}
                     </>
                   ),
@@ -201,13 +229,15 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
             )}
           />
         </Grid>
+
+        {/* "To" Airport Autocomplete */}
         <Grid item xs={12} sm={6}>
           <Autocomplete
             options={toOptions}
             getOptionLabel={(option) => option.label}
-            onInputChange={(_, newInputValue) => setTo(newInputValue)}
-            onChange={(_, newValue) => setSelectedTo(newValue)}
-            loading={loading.to}
+            onInputChange={(_, value) => setTo(value)}
+            onChange={(_, value) => setSelectedTo(value)}
+            loading={toLoading}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -217,9 +247,7 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
                   ...params.InputProps,
                   endAdornment: (
                     <>
-                      {loading.to ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
+                      {toLoading && <CircularProgress size={20} />}
                       {params.InputProps.endAdornment}
                     </>
                   ),
@@ -229,17 +257,18 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
           />
         </Grid>
 
+        {/* Date Range Picker */}
         <Grid item xs={12} sm={6}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateRangePicker
               value={dateRange}
-              onChange={(newValue) => setDateRange(newValue)}
+              onChange={setDateRange}
               disablePast
-              slotProps={{ textField: { fullWidth: true } }}
             />
           </LocalizationProvider>
         </Grid>
 
+        {/* Trip Type Selector */}
         <Grid item xs={12} sm={6}>
           <TextField
             select
@@ -252,6 +281,8 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
             <MenuItem value="one-way">One Way</MenuItem>
           </TextField>
         </Grid>
+
+        {/* Travel Class Selector */}
         <Grid item xs={12} sm={6}>
           <TextField
             select
@@ -266,63 +297,43 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
             <MenuItem value="first">First</MenuItem>
           </TextField>
         </Grid>
+
+        {/* Passenger Selectors */}
         <Grid item xs={12} sm={6}>
-          <TextField
-            select
+          <PassengerSelect
             label="Adults"
             value={passengers.adults}
-            onChange={(e) =>
-              setPassengers({ ...passengers, adults: Number(e.target.value) })
+            onChange={(value) =>
+              setPassengers({ ...passengers, adults: value })
             }
-            fullWidth
-          >
-            {[1, 2, 3, 4, 5].map((num) => (
-              <MenuItem key={num} value={num}>
-                {num}
-              </MenuItem>
-            ))}
-          </TextField>
+          />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <TextField
-            select
+          <PassengerSelect
             label="Children"
             value={passengers.children}
-            onChange={(e) =>
-              setPassengers({ ...passengers, children: Number(e.target.value) })
+            onChange={(value) =>
+              setPassengers({ ...passengers, children: value })
             }
-            fullWidth
-          >
-            {[0, 1, 2, 3, 4, 5].map((num) => (
-              <MenuItem key={num} value={num}>
-                {num}
-              </MenuItem>
-            ))}
-          </TextField>
+          />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <TextField
-            select
+          <PassengerSelect
             label="Infants"
             value={passengers.infants}
-            onChange={(e) =>
-              setPassengers({ ...passengers, infants: Number(e.target.value) })
+            onChange={(value) =>
+              setPassengers({ ...passengers, infants: value })
             }
-            fullWidth
-          >
-            {[0, 1, 2, 3, 4, 5].map((num) => (
-              <MenuItem key={num} value={num}>
-                {num}
-              </MenuItem>
-            ))}
-          </TextField>
+          />
         </Grid>
+
+        {/* Search Button */}
         <Grid item xs={12}>
           <Box display="flex" justifyContent="center">
             <button
               onClick={handleSearch}
               disabled={!isFormValid()}
-              className="rounded-full max-sm:w-full disabled:opacity-50 border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#76c3ff] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+              className="rounded-full max-sm:w-full disabled:opacity-50 border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background hover:bg-[#76c3ff] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
             >
               Search Flights
             </button>
