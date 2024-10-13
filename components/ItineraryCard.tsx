@@ -4,6 +4,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Avatar,
+  Button,
 } from "@mui/material";
 import {
   Timeline,
@@ -17,9 +18,11 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const Itinerary = ({ itinerary }: { itinerary: ItineraryProps }) => {
   return (
-    <div className="m-5 p-5 bg-white rounded-lg shadow-lg">
+    <div className="m-5 p-5 bg-white rounded-lg border shadow-lg max-w-4xl mx-auto">
       <div className="mb-5 text-center">
-        <h2 className="text-2xl font-bold">Price: {itinerary.price.formatted}</h2>
+        <h2 className="text-2xl font-bold">
+          Price <span className="text-emerald-600">{itinerary.price.formatted}</span>
+        </h2>
       </div>
       {itinerary.legs.map((leg, index) => (
         <Accordion key={index} className="mb-3 rounded-lg">
@@ -57,13 +60,16 @@ const Itinerary = ({ itinerary }: { itinerary: ItineraryProps }) => {
                 <TimelineItem key={segIndex}>
                   <TimelineSeparator>
                     <TimelineDot />
-                    {segIndex < leg.segments.length - 1 && <TimelineConnector />}
+                    {segIndex < leg.segments.length - 1 && (
+                      <TimelineConnector />
+                    )}
                   </TimelineSeparator>
                   <TimelineContent className="flex justify-start">
                     <div>
                       <p className="text-sm">
                         {segment.origin.name} ({segment.origin.displayCode}) →{" "}
-                        {segment.destination.name} ({segment.destination.displayCode})
+                        {segment.destination.name} (
+                        {segment.destination.displayCode})
                       </p>
                       <p className="text-xs text-gray-500">
                         {new Date(segment.departure).toLocaleString()} -{" "}
@@ -78,6 +84,11 @@ const Itinerary = ({ itinerary }: { itinerary: ItineraryProps }) => {
                 </TimelineItem>
               ))}
             </Timeline>
+            <div className="mt-4 flex justify-end">
+              <Button variant="contained" color="primary">
+                Select Flight
+              </Button>
+            </div>
           </AccordionDetails>
         </Accordion>
       ))}
