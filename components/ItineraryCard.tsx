@@ -4,7 +4,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Avatar,
-  Button,
+  // Button,
 } from "@mui/material";
 import {
   Timeline,
@@ -89,11 +89,11 @@ const FlightLeg: FC<{ leg: Leg }> = ({ leg }) => (
     </AccordionSummary>
     <AccordionDetails>
       <FlightTimeline segments={leg.segments} />
-      <div className="mt-4 flex justify-end">
+      {/* <div className="mt-4 flex justify-end">
         <Button variant="contained" color="primary">
           Select Flight
         </Button>
-      </div>
+      </div> */}
     </AccordionDetails>
   </Accordion>
 );
