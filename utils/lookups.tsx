@@ -14,7 +14,7 @@ export const useAirportSearch = (query: string) => {
 
   useEffect(() => {
     const fetchAirports = async () => {
-      if (query.length < 3) return; // Fetch only if query length is >= 3.
+      if (query.length < 1) return; // Fetch only if query length is >= 3.
       setLoading(true); // Set loading state to true during the API call.
 
       try {
