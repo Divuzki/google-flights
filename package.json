@@ -19,12 +19,14 @@
     "dayjs": "^1.11.13",
     "next": "14.2.15",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-infinite-scroll-component": "^6.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-infinite-scroll-component": "^4.2.5",
     "eslint": "^8",
     "eslint-config-next": "14.2.15",
     "postcss": "^8",

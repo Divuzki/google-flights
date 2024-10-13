@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Itinerary from "./ItineraryCard";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { CircularProgress } from "@mui/material";
 
 type Props = {
     searchResultsData: SearchResultsData | null;
@@ -30,36 +32,34 @@ const SearchResults = ({ searchResultsData }: Props) => {
         }
     }, [searchResultsData, currentPage]);
 
-    const observer = useRef<IntersectionObserver | null>(null);
-    const lastItineraryRef = useCallback(
-        (node: HTMLDivElement) => {
-            if (observer.current) observer.current.disconnect();
-            observer.current = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting && searchResultsData && displayedItineraries.length < searchResultsData.itineraries.length) {
-                    setCurrentPage((prevPage) => prevPage + 1);
-                }
-            });
-            if (node) observer.current.observe(node);
-        },
-        [searchResultsData, displayedItineraries]
-    );
+    const fetchMoreData = () => {
+        if (searchResultsData && displayedItineraries.length < searchResultsData.itineraries.length) {
+            setCurrentPage((prevPage) => prevPage + 1);
+        }
+    };
 
     return searchResultsData && searchResultsData.itineraries.length > 0 ? (
-        <div
-            ref={searchContainerRef}
-            className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
+        <InfiniteScroll
+            dataLength={displayedItineraries.length}
+            next={fetchMoreData}
+            hasMore={displayedItineraries.length < (searchResultsData?.itineraries.length || 0)}
+            loader={<CircularProgress />}
+            endMessage={<p style={{ textAlign: 'center' }}>No more results</p>}
+            className="!w-full"
+            
         >
-            {displayedItineraries.map((itinerary, index) => {
-                if (index === displayedItineraries.length - 1) {
-                    return <Itinerary ref={lastItineraryRef} key={index} itinerary={itinerary} />;
-                } else {
-                    return <Itinerary key={index} itinerary={itinerary} />;
-                }
-            })}
-        </div>
+            <div
+                ref={searchContainerRef}
+                className="grid gap-8 rid-cols-2 w-full mx-auto"
+            >
+                {displayedItineraries.map((itinerary, index) => (
+                    <Itinerary key={index} itinerary={itinerary} />
+                ))}
+            </div>
+        </InfiniteScroll>
     ) : (
         <div className="flex justify-center gap-4">
-            <p>No results found</p>
+            <p></p>
         </div>
     );
 };

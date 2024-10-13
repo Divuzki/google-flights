@@ -113,18 +113,18 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
   }, [to]);
 
   const handleSearch = async () => {
-    setSearchLoading(true);
     const originSkyId = selectedFrom?.value;
     const destinationSkyId = selectedTo?.value;
     const originEntityId = selectedFrom?.entityId;
     const destinationEntityId = selectedTo?.entityId;
     const departureDate = dateRange[0]?.toISOString().split("T")[0];
     const returnDate = dateRange[1]?.toISOString().split("T")[0];
-
+    
     if (!originSkyId || !destinationSkyId || !departureDate) {
       console.error("Missing required search parameters");
       return;
     }
+    setSearchLoading(true);
 
     const params = {
       originSkyId,
@@ -161,6 +161,15 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
       setSearchLoading(false);
     }
   };
+
+  const isFormValid = () => {
+    return (
+      selectedFrom &&
+      selectedTo &&
+      dateRange[0] &&
+      (tripType === "one-way" || dateRange[1])
+    );
+  }
 
   return (
     <Container>
@@ -312,9 +321,10 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
           <Box display="flex" justifyContent="center">
             <button
               onClick={handleSearch}
-              className="rounded-full max-sm:w-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#76c3ff] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+              disabled={!isFormValid()}
+              className="rounded-full max-sm:w-full disabled:opacity-50 border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#76c3ff] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
             >
-              Search
+              Search Flights
             </button>
           </Box>
         </Grid>
