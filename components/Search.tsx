@@ -35,10 +35,7 @@ type Props = {
   setSearchResultData: React.Dispatch<
     React.SetStateAction<SearchResultsData | null>
   >;
-  setSearchLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
-
-
 
 /**
  * A reusable component to select passenger count for adults, children, or infants.
@@ -68,8 +65,8 @@ const PassengerSelect: React.FC<{
  * Main Search component to allow users to search for flights.
  * Handles airport selection, date range, passenger details, and triggers the search.
  */
-const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
-  // Component state management.
+const Search: React.FC<Props> = ({ setSearchResultData }) => {
+  const [isSearching, setSearchLoading] = useState(false);
   const [from, setFrom] = useState<string>(""); // "From" airport input.
   const [to, setTo] = useState<string>(""); // "To" airport input.
   const [dateRange, setDateRange] = useState<DateRange<Dayjs>>([null, null]); // Selected date range.
@@ -287,7 +284,8 @@ const Search: React.FC<Props> = ({ setSearchResultData, setSearchLoading }) => {
               disabled={!isFormValid()}
               className="rounded-full max-sm:w-full disabled:opacity-50 border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background hover:bg-[#76c3ff] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
             >
-              Search Flights
+              Search Flights{" "}
+              {isSearching && <CircularProgress size={20} className="!ml-5" />}
             </button>
           </Box>
         </Grid>

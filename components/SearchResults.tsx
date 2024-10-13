@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Itinerary from "./ItineraryCard";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { CircularProgress } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 
 type Props = {
     searchResultsData: SearchResultsData | null;
@@ -39,28 +39,31 @@ const SearchResults = ({ searchResultsData }: Props) => {
     };
 
     return searchResultsData && searchResultsData.itineraries.length > 0 ? (
+      <Box display="flex" justifyContent="center" width={"100%"}>
         <InfiniteScroll
-            dataLength={displayedItineraries.length}
-            next={fetchMoreData}
-            hasMore={displayedItineraries.length < (searchResultsData?.itineraries.length || 0)}
-            loader={<CircularProgress />}
-            endMessage={<p style={{ textAlign: 'center' }}>No more results</p>}
-            className="!w-full"
-            
+          dataLength={displayedItineraries.length}
+          next={fetchMoreData}
+          hasMore={
+            displayedItineraries.length <
+            (searchResultsData?.itineraries.length || 0)
+          }
+          loader={<CircularProgress />}
+          endMessage={<p style={{ textAlign: "center" }}>No more results</p>}
         >
-            <div
-                ref={searchContainerRef}
-                className="grid gap-6 rid-cols-2 w-full mx-auto"
-            >
-                {displayedItineraries.map((itinerary, index) => (
-                    <Itinerary key={index} itinerary={itinerary} />
-                ))}
-            </div>
+          <div
+            ref={searchContainerRef}
+            className="grid gap-6 rid-cols-2 w-full mx-auto"
+          >
+            {displayedItineraries.map((itinerary, index) => (
+              <Itinerary key={index} itinerary={itinerary} />
+            ))}
+          </div>
         </InfiniteScroll>
+      </Box>
     ) : (
-        <div className="flex justify-center gap-4">
-            <p></p>
-        </div>
+      <div className="flex justify-center gap-4">
+        <p></p>
+      </div>
     );
 };
 

@@ -1,14 +1,13 @@
 "use client";
 import Search from "@/components/Search";
 import SearchResults from "@/components/SearchResults";
-import { Box, CircularProgress } from "@mui/material";
 import Image from "next/image";
 import { useState } from "react";
 
 export default function Home() {
   const [searchResultsData, setSearchResultsData] =
     useState<SearchResultsData | null>(null);
-  const [loading, setLoading] = useState(false);
+  
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-4 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -21,19 +20,11 @@ export default function Home() {
           height={272}
           priority
         />
-        <h1 className="text-4xl font-semibold mx-auto">
-          Flights
-        </h1>
+        <h1 className="text-4xl font-semibold mx-auto">Flights</h1>
         <Search
           setSearchResultData={setSearchResultsData}
-          setSearchLoading={setLoading}
         />
 
-        {loading && (
-          <Box display="flex" justifyContent="center">
-            <CircularProgress size={50} className="mx-auto" />
-          </Box>
-        )}
         <SearchResults searchResultsData={searchResultsData} />
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center"></footer>
