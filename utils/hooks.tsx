@@ -29,11 +29,15 @@ export const useAirportSearch = (query: string) => {
         );
 
         // Map API response to the AirportOption structure.
-        const options = data.data.map((item: any) => ({
-          label: item.presentation.suggestionTitle,
-          value: item.navigation.relevantFlightParams.skyId,
-          entityId: item.navigation.relevantFlightParams.entityId,
-        }));
+        const options = data.data.map((item: any) => {
+          const { presentation, navigation } = item;
+          if (navigation.entityType !== "AIRPORT") return null;
+          return {
+            label: presentation.suggestionTitle,
+            value: navigation.relevantFlightParams.skyId,
+            entityId: navigation.relevantFlightParams.entityId,
+          };
+        });
         setOptions(options); // Update options state with the fetched data.
       } catch (error) {
         console.error("Error fetching airports:", error); // Handle any errors.

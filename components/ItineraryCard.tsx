@@ -20,7 +20,7 @@ import Link from "next/link";
 // Helper function to format date strings
 const formatDate = (date: string) => new Date(date).toLocaleString();
 
-const FlightLeg: FC<{ leg: Leg; sessionId: string }> = ({ leg, sessionId }) => (
+const FlightLeg: FC<{ leg: Leg;}> = ({ leg }) => (
   <Accordion className="mb-3 rounded-lg !shadow-none">
     <AccordionSummary
       expandIcon={<ExpandMoreIcon />}
@@ -50,16 +50,6 @@ const FlightLeg: FC<{ leg: Leg; sessionId: string }> = ({ leg, sessionId }) => (
     </AccordionSummary>
     <AccordionDetails>
       <FlightTimeline segments={leg.segments} />
-      <Link
-        href={`/?flightId=${
-          leg.id
-        }&sessionid=${sessionId}&legs=${JSON.stringify(leg.segments)}`}
-        className="mt-4 flex justify-end"
-      >
-        <Button variant="contained" color="primary">
-          Select Flight
-        </Button>
-      </Link>
     </AccordionDetails>
   </Accordion>
 );
@@ -106,8 +96,24 @@ const Itinerary: FC<{ itinerary: ItineraryProps; sessionId: string }> = ({
       </h2>
     </div>
     {itinerary.legs.map((leg, index) => (
-      <FlightLeg key={index} leg={leg} sessionId={sessionId} />
+      <FlightLeg key={index} leg={leg} />
     ))}
+    <Link
+      href={`/?flightId=${itinerary.id}&sessionid=${sessionId}&legs=${JSON.stringify(
+        // The legs must contain the origin, destination and date in object format and must be passed in an array. EXAMPLE: [ { 'origin': 'LHR', 'destination': 'JFK', 'date': '2024-01-07' }, ... ] Note: If there are multiple stops, there should be more leg objects in the array. And the legs have to be the same as the Search Flights API in Flights collection.
+
+        itinerary.legs.map((leg) => ({
+          origin: leg.origin.displayCode,
+          destination: leg.destination.displayCode,
+          date: leg.departure,
+        }))
+      )}`}
+      className="mt-4 flex justify-end"
+    >
+      <Button variant="contained" color="primary">
+        Select Flight
+      </Button>
+    </Link>
   </div>
 );
 

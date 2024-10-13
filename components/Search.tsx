@@ -139,8 +139,8 @@ const Search: React.FC<Props> = ({ setSearchResultData }) => {
       setSearchResultData({
         itineraries: data.data.itineraries,
         status: data.data.context.status,
-        sessionId: data.sessionId,
-      });
+        sessionId: data.data.flightsSessionId,
+      } as SearchResultsData);
     } catch (error) {
       console.error("Error searching flights:", error); // Handle API errors.
     } finally {
@@ -280,7 +280,7 @@ const Search: React.FC<Props> = ({ setSearchResultData }) => {
           <Box display="flex" justifyContent="center">
             <button
               onClick={handleSearch}
-              disabled={!isFormValid()}
+              disabled={!isFormValid() || isSearching}
               className="rounded-full max-sm:w-full disabled:opacity-50 border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background hover:bg-[#76c3ff] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
             >
               Search Flights{" "}
