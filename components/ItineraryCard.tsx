@@ -98,7 +98,7 @@ const Itinerary: FC<{ itinerary: ItineraryProps; sessionId: string }> = ({
     {itinerary.legs.map((leg, index) => (
       <FlightLeg key={index} leg={leg} />
     ))}
-    <Link
+    {/* <Link
       href={`/?flightId=${
         itinerary.id
       }&sessionId=${sessionId}&legs=${JSON.stringify(
@@ -113,7 +113,7 @@ const Itinerary: FC<{ itinerary: ItineraryProps; sessionId: string }> = ({
       <Button variant="contained" color="primary">
         Select Flight
       </Button>
-    </Link>
+    </Link> */}
   </div>
 );
 
